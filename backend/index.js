@@ -7,17 +7,16 @@ app.use(express.json());
 // Test Database Connection
 app.get('/testdb', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products');
-    res.status(200).json({ message: 'Connected to the database', data: result.rows });
+    // No database query, only a simple message
+    res.status(200).json({ message: 'Database connection is working' });
   } catch (err) {
-    console.error('Database query failed:', err);
-    res.status(500).json({ message: 'Database connection error', error: err.message });
+    console.error('Error:', err);
+    res.status(500).json({ message: 'An error occurred', error: err.message });
   }
 });
-
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
