@@ -5,7 +5,7 @@ const router = express.Router();
 const User = require('../../models/User')
 
 // Registration endpoint
-router.post('/auth/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     const { username, email, password , role_id } = req.body;    
 
     if (!username || !email || !password) {
