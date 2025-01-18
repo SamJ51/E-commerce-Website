@@ -11,15 +11,19 @@ services:
       - app-network
     environment:
       - REACT_APP_API_URL=http://backend:5000
+    restart: unless-stopped
 
   backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     ports:
       - "5000:5000"
+    command: npm run start
     environment:
-      - DATABASE_URL=postgresql://postgres:Bottleflip!12@db:5432/ecommerce
+      - DATABASE_URL=postgresql://postgres:Bottleflip!12@db:5432/ecommerce # Consider using .env for sensitive values
     depends_on:
       db:
         condition: service_healthy
@@ -27,8 +31,7 @@ services:
       - app-network
     env_file:
       - ../backend/config/.env
-    #volumes:
-    # - ./backend:/app # Optional for local development, to reflect code changes immediately
+    restart: unless-stopped
 
   db:
     image: postgres:14
