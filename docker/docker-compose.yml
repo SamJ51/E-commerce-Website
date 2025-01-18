@@ -10,7 +10,7 @@ services:
     networks:
       - app-network
     environment:
-      - REACT_APP_API_URL=http://localhost:5000 # Example environment variable for frontend
+      - REACT_APP_API_URL=http://backend:5000
 
   backend:
     build:
@@ -28,7 +28,7 @@ services:
     env_file:
       - ../backend/config/.env
     #volumes:
-     # - ./backend:/app # Optional for local development, to reflect code changes immediately
+    # - ./backend:/app # Optional for local development, to reflect code changes immediately
 
   db:
     image: postgres:14
@@ -43,7 +43,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
