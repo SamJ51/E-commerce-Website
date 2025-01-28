@@ -4,7 +4,7 @@ const { verifyToken } = require('../../middlewares/authMiddleware');
 const User = require('../../models/User');
 
 // Get current user's profile
-router.get('/profile', verifyToken, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
       const user = await User.findById(req.user.id);
   

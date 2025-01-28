@@ -1,5 +1,6 @@
 // index.js
 const express = require('express');
+const cors = require('cors');
 const registerRoute = require('./routes/authorisation/register');
 const loginRoute = require('./routes/authorisation/login');
 const profileRoute = require('./routes/user/profile');
@@ -12,6 +13,7 @@ const addressRoutes = require('./routes/address/address');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
@@ -20,7 +22,7 @@ app.get('/', (req, res) => {
 // Authentication / user routes
 app.use('/auth', registerRoute);
 app.use('/auth', loginRoute);
-app.use('/users', profileRoute);
+app.use('/user/profile', profileRoute);
 
 // Product routes
 app.use('/products', productRoute);

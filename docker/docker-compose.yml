@@ -23,7 +23,8 @@ services:
       - "5000:5000"
     command: npm run start
     environment:
-      - DATABASE_URL=postgresql://postgres:Bottleflip!12@db:5432/ecommerce # Consider using .env for sensitive values
+      - DATABASE_URL=postgresql://postgres:Bottleflip!12@db:5432/ecommerce
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       db:
         condition: service_healthy

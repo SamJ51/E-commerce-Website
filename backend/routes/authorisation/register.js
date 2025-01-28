@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
         const newUser = await User.create({
             username,
             email,
-            password: hashedPassword,
+            password_hash: hashedPassword,
             role_id: role_id || 1,
         });
 
@@ -38,10 +38,3 @@ router.post('/register', async (req, res) => {
 });
 
 module.exports = router;
-
-
-
-
-
-
-
