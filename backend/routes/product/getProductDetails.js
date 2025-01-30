@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
         // 5. Respond with the product details
         res.status(200).json({
             product: {
-                id: product.product_id,
+                id: product.id,
                 name: product.name,
                 description: product.description,
                 price: product.price,

@@ -28,7 +28,7 @@ router.get('/', verifyToken, async (req, res) => {
   });
 
 // Update user profile
-router.patch('/profile', verifyToken, async (req, res) => {
+router.patch('/', verifyToken, async (req, res) => {
     const { username, email } = req.body;
   
     // 1) If no fields were passed in the request:
