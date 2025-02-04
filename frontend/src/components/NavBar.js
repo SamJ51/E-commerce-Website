@@ -8,6 +8,8 @@ const NavBar = () => {
                 <a href="/profile" style={styles.navLink}>Profile</a>
                 <a href="/login" style={styles.navLink}>Login</a>
                 <a href="/register" style={styles.navLink}>Register</a>
+                <a href="/viewproducts" style={styles.navLink}>View Products</a>
+                <a href="/cart" style={styles.navLink}>Cart</a>
             </div>
         </nav>
     );
@@ -19,12 +21,14 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: '#ffffff',
-        padding: '20px 50px',
+        padding: '20px 5%',
         width: '100%',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         position: 'sticky',
         top: 0,
         zIndex: 1000,
+        boxSizing: 'border-box',
+        maxWidth: '100%',
     },
     logo: {
         fontSize: '24px',
@@ -33,7 +37,9 @@ const styles = {
     },
     navLinks: {
         display: 'flex',
-        gap: '30px',
+        gap: '20px',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
     },
     navLink: {
         textDecoration: 'none',
@@ -45,6 +51,26 @@ const styles = {
             color: '#007bff',
         },
     },
+    '@media (max-width: 768px)': {
+        navBar: {
+            padding: '15px 5%',
+            flexDirection: 'column',
+            gap: '15px',
+        },
+        navLinks: {
+            gap: '15px',
+            justifyContent: 'center',
+        }
+    },
+    '@media (max-width: 480px)': {
+        navLinks: {
+            gap: '10px',
+            flexWrap: 'wrap',
+        },
+        navLink: {
+            fontSize: '14px',
+        }
+    }
 }
 
 export default NavBar;

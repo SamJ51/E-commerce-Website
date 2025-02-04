@@ -17,19 +17,20 @@ function adminCheck(req, res, next) {
 // --------------- POST /products ---------------
 router.post('/', verifyToken, adminCheck, async (req, res) => {
     try {
-        const { name, price, stock } = req.body;
-        if (!name || !price || !stock) {
+        const { name, price, stock, description, main_image_url } = req.body;
+        if (!name || !price || !stock || !description || !main_image_url) {
             return res.status(400).json({ 
-                message: 'Missing required fields: name, price, stock' 
+                message: 'Missing required fields: name, price, stock, description, main_image_url.' 
             });
         }
 
         const insertQuery = `
-            INSERT INTO Products (name, price, stock)
-            VALUES ($1, $2, $3)
-            RETURNING product_id, name, price, stock
+            INSERT INTO Products (name, price, stock, description, main_image_url)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING product_id, name, price, stock, description, main_image_url
         `;
-        const values = [name, price, stock];
+        
+        const values = [name, price, stock, description, main_image_url];
         const result = await db.query(insertQuery, values);
 
         return res.status(201).json({

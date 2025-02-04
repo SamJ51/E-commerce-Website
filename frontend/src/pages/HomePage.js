@@ -1,48 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const abortController = new AbortController();
+
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/products');
+                const response = await axios.get('http://localhost:5000/products', {
+                    signal: abortController.signal
+                });
                 setProducts(response.data.products);
             } catch (err) {
-                setError(err.message || 'Failed to load products');
+                if (!abortController.signal.aborted) {
+                    setError(err.message || 'Failed to load products');
+                }
             }
         };
 
         fetchProducts();
+
+        return () => abortController.abort();
     }, []);
 
     return (
-        <div style={styles.container}>
+        <>
             <NavBar />
-            <h1 style={styles.heading}>Welcome to My Store</h1>
-            {error && <p style={styles.error}>{error}</p>}
-            <div style={styles.carouselContainer}>
-                {products.length > 0 ? (
-                    products.map((product, index) => (
-                        <div key={index} style={styles.card}>
-                            <img
-                                src={product.main_image_url || 'https://via.placeholder.com/150'}
-                                alt={product.name}
-                                style={styles.image}
-                            />
-                            <h3 style={styles.productName}>{product.name}</h3>
-                            <p style={styles.price}>${product.price}</p>
-                            <button style={styles.button}>View Details</button>
-                        </div>
-                    ))
-                ) : (
-                    <p style={styles.loading}>Loading products...</p>
-                )}
+            <div style={styles.container}>
+                <h1 style={styles.heading}>Welcome to My Store</h1>
+                {error && <p style={styles.error}>{error}</p>}
+                <div style={styles.carouselContainer}>
+                    {products.length > 0 ? (
+                        products.map((product, index) => (
+                            <div key={index} style={styles.card}>
+                                <img
+                                    src={product.main_image_url || 'https://via.placeholder.com/150'}
+                                    alt={product.name}
+                                    style={styles.image}
+                                />
+                                <h3 style={styles.productName}>{product.name}</h3>
+                                <div style={styles.bottomSection}>
+                                    <p style={styles.price}>${product.price}</p>
+                                    <div style={styles.buttonContainer}>
+                                        <Link to={`/products/${product.product_id}`} style={{ textDecoration: 'none' }}>
+                                            <button style={styles.button}>View Details</button>
+                                        </Link>
+                                        <Link to={`/products/${product.product_id}/edit`} style={{ textDecoration: 'none' }}>
+                                            <button style={styles.editButton}>Edit</button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p style={styles.loading}>Loading products...</p>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 
@@ -51,7 +71,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '20px',
+        padding: '0px',
         backgroundColor: '#f5f5f5',
         minHeight: '100vh',
     },
@@ -59,7 +79,7 @@ const styles = {
         color: 'black',
         textAlign: 'center',
         fontSize: '50px',
-        marginBottom: '20px',
+        marginBottom: '40px',
     },
     error: {
         color: 'red',
@@ -69,9 +89,11 @@ const styles = {
     carouselContainer: {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '20px',
+        rowGap: '20px',
+        columnGap: '20px',
         width: '100%',
-        maxWidth: '1200px',
+        maxWidth: '1500px',
+        marginBottom: '20px',
     },
     card: {
         backgroundColor: '#fff',
@@ -79,37 +101,54 @@ const styles = {
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         padding: '15px',
         textAlign: 'center',
-        transition: 'transform 0.2s',
+        transition: 'transform 0.1s',
+        display: 'flex',
+        flexDirection: 'column',
     },
     image: {
         width: '100%',
         height: '200px',
-        objectFit: 'cover',
-        borderRadius: '10px',
-        marginBottom: '15px',
+        objectFit: 'contain',
+        marginBottom: '0px',
     },
     productName: {
-        fontSize: '20px',
-        fontWeight: 'bold',
+        fontSize: '16px',
         color: '#333',
+        margin: '0px',
+    },
+    bottomSection: {
+        marginTop: 'auto',
+        paddingTop: '5px',
     },
     price: {
         fontSize: '18px',
         color: 'green',
-        margin: '10px 0',
+        margin: '5px 0',
+    },
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'space-around',
+        marginTop: '10px',
     },
     button: {
         padding: '10px 20px',
         backgroundColor: 'black',
         color: '#fff',
         border: 'none',
-        borderRadius: '20px',
+        borderRadius: '30px',
         cursor: 'pointer',
         fontSize: '16px',
         transition: 'transform 0.1s ease',
     },
-    buttonHover: {
-        transform: 'scale(1.05)',
+    editButton: {
+        padding: '10px 20px',
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '30px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        transition: 'transform 0.1s ease',
     },
     loading: {
         color: '#555',

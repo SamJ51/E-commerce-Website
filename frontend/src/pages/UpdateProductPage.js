@@ -88,59 +88,60 @@ const UpdateProductPage = () => {
     }
 
     return (
-        <div style={styles.container}>
-            <NavBar />
-            <h1 style={styles.heading}>Update Product (ID {id})</h1>
-            {successMessage && <p style={styles.success}>{successMessage}</p>}
-            {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-            <form style={styles.form} onSubmit={handleSubmit}>
-                <input
-                    style={styles.input}
-                    type="text"
-                    name="name"
-                    placeholder="Product Name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                />
-                <textarea
-                    style={styles.textarea}
-                    name="description"
-                    placeholder="Product Description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                />
-                <input
-                    style={styles.input}
-                    type="number"
-                    name="price"
-                    placeholder="Price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    required
-                />
-                <input
-                    style={styles.input}
-                    type="number"
-                    name="stock"
-                    placeholder="Stock Quantity"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    required
-                />
-                <input
-                    style={styles.input}
-                    type="text"
-                    name="main_image_url"
-                    placeholder="Main Image URL"
-                    value={formData.main_image_url}
-                    onChange={handleInputChange}
-                />
-                <button type="submit" style={styles.button}>
-                    Update Product
-                </button>
-            </form>
-        </div>
+        <><NavBar />
+            <div style={styles.container}>
+
+                <h1 style={styles.heading}>Update Product (ID {id})</h1>
+                {successMessage && <p style={styles.success}>{successMessage}</p>}
+                {errorMessage && <p style={styles.error}>{errorMessage}</p>}
+                <form style={styles.form} onSubmit={handleSubmit}>
+                    <input
+                        style={styles.input}
+                        type="text"
+                        name="name"
+                        placeholder="Product Name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <textarea
+                        style={styles.textarea}
+                        name="description"
+                        placeholder="Product Description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                    />
+                    <input
+                        style={styles.input}
+                        type="number"
+                        name="price"
+                        placeholder="Price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <input
+                        style={styles.input}
+                        type="number"
+                        name="stock"
+                        placeholder="Stock Quantity"
+                        value={formData.stock}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <input
+                        style={styles.input}
+                        type="text"
+                        name="main_image_url"
+                        placeholder="Main Image URL"
+                        value={formData.main_image_url}
+                        onChange={handleInputChange}
+                    />
+                    <button type="submit" style={styles.button}>
+                        Update Product
+                    </button>
+                </form>
+            </div></>
     );
 };
 

@@ -45,8 +45,7 @@ const CreateProductPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <NavBar />
+        <><NavBar /><div style={styles.container}>
             <h1 style={styles.heading}>Create New Product</h1>
             {successMessage && <p style={styles.success}>{successMessage}</p>}
             {errorMessage && <p style={styles.error}>{errorMessage}</p>}
@@ -58,15 +57,13 @@ const CreateProductPage = () => {
                     placeholder="Product Name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    required
-                />
+                    required />
                 <textarea
                     style={styles.textarea}
                     name="description"
                     placeholder="Product Description"
                     value={formData.description}
-                    onChange={handleInputChange}
-                />
+                    onChange={handleInputChange} />
                 <input
                     style={styles.input}
                     type="number"
@@ -74,8 +71,7 @@ const CreateProductPage = () => {
                     placeholder="Price"
                     value={formData.price}
                     onChange={handleInputChange}
-                    required
-                />
+                    required />
                 <input
                     style={styles.input}
                     type="number"
@@ -83,21 +79,19 @@ const CreateProductPage = () => {
                     placeholder="Stock Quantity"
                     value={formData.stock}
                     onChange={handleInputChange}
-                    required
-                />
+                    required />
                 <input
                     style={styles.input}
                     type="text"
                     name="main_image_url"
                     placeholder="Main Image URL"
                     value={formData.main_image_url}
-                    onChange={handleInputChange}
-                />
+                    onChange={handleInputChange} />
                 <button type="submit" style={styles.button}>
                     Create Product
                 </button>
             </form>
-        </div>
+        </div></>
     );
 };
 
