@@ -49,7 +49,7 @@ const ProfilePage = () => {
     };
 
     return (
-    <><NavBar /><div style={styles.container}>
+        <><NavBar /><div style={styles.container}>
 
             <div style={styles.form}>
                 <h2 style={styles.h2}>Profile</h2>
@@ -109,7 +109,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
+        height: '92vh',
         backgroundColor: '#f5f5f5',
         textAlign: 'center',
     },

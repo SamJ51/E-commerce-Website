@@ -11,7 +11,7 @@ router.get('/', verifyToken, async (req, res) => {
         // Find the cart for the user
         const cart = await db.query('SELECT * FROM Cart WHERE user_id = $1', [userId]);
         if (cart.rows.length === 0) {
-            return res.status(404).json({ message: 'Cart not found' });
+            return res.status(404).json({ message: 'No Items in Cart!' });
         }
         const cartId = cart.rows[0].cart_id;
 

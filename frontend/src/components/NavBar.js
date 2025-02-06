@@ -1,15 +1,34 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
 const NavBar = () => {
+    const navigate = useNavigate();
+
+    // Initialise login state by checking if a token exists in localStorage
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('authToken'));
+
+    const handleLogout = () => {
+        // Remove the token from localStorage
+        localStorage.removeItem('authToken');
+        setIsLoggedIn(false);
+        // Redirect the user to the login page (or homepage if you prefer)
+        navigate('/login');
+    };
+
     return (
         <nav style={styles.navBar}>
             <div style={styles.logo}>Samuel Eleveld</div>
             <div style={styles.navLinks}>
-                <a href="/" style={styles.navLink}>Home</a>
-                <a href="/products" style={styles.navLink}>Add Product</a>
-                <a href="/profile" style={styles.navLink}>Profile</a>
-                <a href="/login" style={styles.navLink}>Login</a>
-                <a href="/register" style={styles.navLink}>Register</a>
-                <a href="/viewproducts" style={styles.navLink}>View Products</a>
-                <a href="/cart" style={styles.navLink}>Cart</a>
+                <Link to="/" style={styles.navLink}>Home</Link>
+                <Link to="/viewproducts" style={styles.navLink}>Products</Link>
+                <Link to="/cart" style={styles.navLink}>Cart</Link>
+                <Link to="/profile" style={styles.navLink}>Profile</Link>
+                {/* Conditionally render the Login link or Logout button */}
+                {isLoggedIn ? (
+                    <button onClick={handleLogout} style={styles.navButtonRed}>Logout</button>
+                ) : (
+                    <Link to="/login" style={styles.navButtonGreen}>Login</Link>
+                )}
             </div>
         </nav>
     );
@@ -47,9 +66,26 @@ const styles = {
         fontSize: '16px',
         fontWeight: 500,
         transition: 'color 0.3s ease',
-        ':hover': {
-            color: '#007bff',
-        },
+    },
+    // Updated logout button style to remove underlining and use a visible colour
+    navButtonRed: {
+        marginTop: '2px',
+        backgroundColor: 'transparent',
+        border: 'none',
+        fontSize: '16px',
+        fontWeight: 500,
+        color: 'red', // Changed from '#fff' to 'red' for visibility on white background
+        cursor: 'pointer',
+        textDecoration: 'none', // Ensure no underline
+    },
+    navButtonGreen: {
+        backgroundColor: 'transparent',
+        border: 'none',
+        fontSize: '16px',
+        fontWeight: 500,
+        color: 'green',
+        cursor: 'pointer',
+        textDecoration: 'none', // Remove underline from the login link
     },
     '@media (max-width: 768px)': {
         navBar: {
@@ -60,7 +96,7 @@ const styles = {
         navLinks: {
             gap: '15px',
             justifyContent: 'center',
-        }
+        },
     },
     '@media (max-width: 480px)': {
         navLinks: {
@@ -69,8 +105,8 @@ const styles = {
         },
         navLink: {
             fontSize: '14px',
-        }
-    }
-}
+        },
+    },
+};
 
 export default NavBar;

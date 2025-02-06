@@ -132,7 +132,7 @@ const styles = {
     heading: {
         textAlign: 'center',
         fontSize: '32px',
-        marginBottom: '20px',
+        marginBottom: '40px',
     },
     loading: {
         textAlign: 'center',

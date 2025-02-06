@@ -36,8 +36,8 @@ const HomePage = () => {
                 {error && <p style={styles.error}>{error}</p>}
                 <div style={styles.carouselContainer}>
                     {products.length > 0 ? (
-                        products.map((product, index) => (
-                            <div key={index} style={styles.card}>
+                        products.map((product) => (
+                            <div key={product.product_id} style={styles.card}>
                                 <img
                                     src={product.main_image_url || 'https://via.placeholder.com/150'}
                                     alt={product.name}
@@ -50,9 +50,6 @@ const HomePage = () => {
                                         <Link to={`/products/${product.product_id}`} style={{ textDecoration: 'none' }}>
                                             <button style={styles.button}>View Details</button>
                                         </Link>
-                                        <Link to={`/products/${product.product_id}/edit`} style={{ textDecoration: 'none' }}>
-                                            <button style={styles.editButton}>Edit</button>
-                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -61,6 +58,9 @@ const HomePage = () => {
                         <p style={styles.loading}>Loading products...</p>
                     )}
                 </div>
+                <Link to={`/products`} style={{ textDecoration: 'none' }}>
+                    <button style={styles.addProductButton}>Add Product</button>
+                </Link>
             </div>
         </>
     );
@@ -88,9 +88,11 @@ const styles = {
     },
     carouselContainer: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        // Force each column to be exactly 250px wide
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 250px))',
         rowGap: '20px',
         columnGap: '20px',
+        justifyContent: 'center',
         width: '100%',
         maxWidth: '1500px',
         marginBottom: '20px',
@@ -101,23 +103,24 @@ const styles = {
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         padding: '15px',
         textAlign: 'center',
-        transition: 'transform 0.1s',
         display: 'flex',
         flexDirection: 'column',
+        // Fixed height for consistent card size
+        height: '400px',
     },
     image: {
         width: '100%',
         height: '200px',
         objectFit: 'contain',
-        marginBottom: '0px',
+        marginBottom: '10px',
     },
     productName: {
         fontSize: '16px',
         color: '#333',
         margin: '0px',
+        flexGrow: 1, // This helps push the bottom section to the bottom
     },
     bottomSection: {
-        marginTop: 'auto',
         paddingTop: '5px',
     },
     price: {
@@ -140,15 +143,17 @@ const styles = {
         fontSize: '16px',
         transition: 'transform 0.1s ease',
     },
-    editButton: {
+    addProductButton: {
         padding: '10px 20px',
-        backgroundColor: '#007bff',
+        backgroundColor: 'black',
         color: '#fff',
         border: 'none',
-        borderRadius: '30px',
+        borderRadius: '100px',
         cursor: 'pointer',
-        fontSize: '16px',
+        fontSize: '18px',
         transition: 'transform 0.1s ease',
+        width: '150px',
+        marginBottom: '20px',
     },
     loading: {
         color: '#555',

@@ -1,4 +1,3 @@
-// ViewProductsPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
@@ -75,6 +74,29 @@ const ViewProductsPage = () => {
   const goToPage = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  // Handler to delete a product
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+    try {
+      // Retrieve the token (adjust as necessary)
+      const token = localStorage.getItem('authToken');
+      await axios.delete(`http://localhost:5000/products/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Update the state to remove the deleted product
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.product_id !== productId)
+      );
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError(err.response?.data?.message || 'Failed to delete product.');
     }
   };
 
@@ -173,15 +195,29 @@ const ViewProductsPage = () => {
                       style={styles.image}
                     />
                     <h3 style={styles.productName}>{product.name}</h3>
-                    <p style={styles.price}>${parseFloat(product.price).toFixed(2)}</p>
-                    {/* Button container to match the HomePage layout */}
+                    <p style={styles.price}>
+                      ${parseFloat(product.price).toFixed(2)}
+                    </p>
+                    {/* Buttons Container: Fixed location at the bottom */}
                     <div style={styles.buttonContainer}>
-                      <Link to={`/products/${product.product_id}`} style={{ textDecoration: 'none' }}>
-                        <button style={styles.button}>View Details</button>
+                      <Link
+                        to={`/products/${product.product_id}`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <button style={styles.viewButton}>View</button>
                       </Link>
-                      <Link to={`/products/${product.product_id}/edit`} style={{ textDecoration: 'none' }}>
+                      <Link
+                        to={`/products/${product.product_id}/edit`}
+                        style={{ textDecoration: 'none' }}
+                      >
                         <button style={styles.editButton}>Edit</button>
                       </Link>
+                      <button
+                        style={styles.deleteButton}
+                        onClick={() => handleDelete(product.product_id)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))
@@ -226,7 +262,7 @@ const styles = {
   heading: {
     textAlign: 'center',
     fontSize: '32px',
-    marginBottom: '20px',
+    marginBottom: '40px',
   },
   filterForm: {
     display: 'flex',
@@ -264,17 +300,16 @@ const styles = {
     backgroundColor: 'black',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '20px',
     cursor: 'pointer',
     height: 'fit-content',
     marginTop: '25px',
   },
-  // Fixed width grid for cards
   productsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, 250px)', // Each card is 250px wide
     gap: '20px',
-    justifyContent: 'center', // Center grid when there are few cards
+    justifyContent: 'center',
   },
   card: {
     backgroundColor: '#fff',
@@ -285,6 +320,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '400px',
+    position: 'relative', // Needed for absolute positioning of the buttons
   },
   image: {
     width: '100%',
@@ -304,29 +340,59 @@ const styles = {
     fontWeight: 'bold',
   },
   buttonContainer: {
+    position: 'absolute',
+    bottom: '15px',
+    left: '15px',
+    right: '15px',
     display: 'flex',
-    justifyContent: 'space-around',
-    marginTop: 'auto', // Sticks the buttons to the bottom of the card
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: '35px', // Fixed container height so buttons are aligned the same for every card
   },
-  button: {
-    padding: '10px 20px',
+  viewButton: {
+    width: '70px',
+    height: '35px', // Explicit height
     backgroundColor: 'black',
     color: '#fff',
     border: 'none',
-    borderRadius: '30px',
+    borderRadius: '20px',
     cursor: 'pointer',
     fontSize: '16px',
     transition: 'transform 0.1s ease',
+    padding: '0', // Remove default padding
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   editButton: {
-    padding: '10px 20px',
+    width: '70px',
+    height: '35px', // Explicit height
     backgroundColor: '#007bff',
     color: '#fff',
     border: 'none',
-    borderRadius: '30px',
+    borderRadius: '20px',
     cursor: 'pointer',
     fontSize: '16px',
     transition: 'transform 0.1s ease',
+    padding: '0', // Remove default padding
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButton: {
+    width: '70px',
+    height: '35px', // Explicit height
+    backgroundColor: '#dc3545',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '20px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'transform 0.1s ease',
+    padding: '0', // Remove default padding
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   noResults: {
     gridColumn: '1 / -1',

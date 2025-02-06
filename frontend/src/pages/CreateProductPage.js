@@ -108,7 +108,7 @@ const styles = {
         color: 'black',
         textAlign: 'center',
         fontSize: '40px',
-        marginBottom: '20px',
+        marginBottom: '40px',
     },
     success: {
         color: 'green',
