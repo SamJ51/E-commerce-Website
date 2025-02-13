@@ -23,7 +23,9 @@ const UpdateProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/products?id=${id}`);
+                const res = await axios.get(`http://localhost:5000/products/${id}`);
+                const product = res.data.product;
+
                 /*
                   Because your back end returns:
                      {
@@ -32,7 +34,6 @@ const UpdateProductPage = () => {
                      }
                   we do res.data.products[0] if the product is in an array of length 1.
                 */
-                const product = res.data.products[0];
                 if (!product) {
                     setErrorMessage('Product not found.');
                 } else {
@@ -41,7 +42,7 @@ const UpdateProductPage = () => {
                         description: product.description || '',
                         price: product.price || '',
                         stock: product.stock || '',
-                        main_image_url: product.main_image_url || '',
+                        main_image_url: product.mainImageUrl || '',
                     });
                 }
             } catch (error) {

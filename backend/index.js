@@ -38,6 +38,9 @@ app.use('/api', orderRoutes);
 // Address routes
 app.use('/addresses', addressRoutes);
 
+// Stripe payment route
+app.use('/stripe', require('./routes/order/payment'));
+
 const PORT = process.env.PORT || 5000;
 
 // Only listen if NOT in test environment

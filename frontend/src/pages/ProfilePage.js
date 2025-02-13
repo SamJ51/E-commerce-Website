@@ -28,7 +28,7 @@ const ProfilePage = () => {
                 });
                 setProfile(response.data);
             } catch (err) {
-                setError('Failed to fetch profile.');
+                setError('You are not logged in.');
             }
         };
 

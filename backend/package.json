@@ -19,7 +19,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "stripe": "^17.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

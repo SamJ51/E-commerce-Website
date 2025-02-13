@@ -9,6 +9,8 @@ import UpdateProductPage from './pages/UpdateProductPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import ViewProductsPage from './pages/ViewProductsPage';
 import CartManagementPage from './pages/CartManagementPage';
+import Payment from './components/Payment';
+import CheckoutForm from './pages/CheckoutForm';
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="/viewproducts" element={<ViewProductsPage />} />
         <Route path="/cart" element={<CartManagementPage />} />
+        <Route path="/checkout" element={<Payment />} />
       </Routes>
     </Router>
   );

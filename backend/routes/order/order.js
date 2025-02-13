@@ -3,35 +3,48 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config/db');
 const { verifyToken } = require('../../middlewares/authMiddleware');
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // POST /checkout: Create a new order
 router.post('/checkout', verifyToken, async (req, res) => {
   const userId = req.user.id;
-
-  // Assume the client sends shipping_address_id, billing_address_id and cart_id in the request body
   const { shipping_address_id, billing_address_id, cart_id } = req.body;
 
   if (!shipping_address_id || !billing_address_id || !cart_id) {
-    return res.status(400).json({ message: 'Missing required fields: shipping_address_id, billing_address_id, and cart_id' });
+    return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
-    // Start a transaction
     await db.query('BEGIN');
 
-    // Fetch cart items
-    const cartItemsResult = await db.query('SELECT ci.product_id, ci.quantity, p.price FROM Cart_Items ci JOIN Products p ON ci.product_id = p.product_id WHERE ci.cart_id = $1', [cart_id]);
+    // Fetch cart items and calculate total amount (always recalc on the server)
+    const cartItemsResult = await db.query(
+      `SELECT ci.product_id, ci.quantity, p.price, p.stock 
+       FROM Cart_Items ci 
+       JOIN Products p ON ci.product_id = p.product_id 
+       WHERE ci.cart_id = $1`,
+      [cart_id]
+    );
     const cartItems = cartItemsResult.rows;
 
-    // Calculate total amount
+    if (cartItems.length === 0) {
+      throw new Error('Cart is empty');
+    }
+
     let totalAmount = 0;
     for (const item of cartItems) {
+      if (item.quantity > item.stock) {
+        throw new Error('Requested quantity exceeds available stock');
+      }
       totalAmount += item.quantity * item.price;
     }
 
-    // Create the order
+    // Create the order with pending statuses
     const orderResult = await db.query(
-      'INSERT INTO Orders (user_id, shipping_address_id, billing_address_id, total_amount) VALUES ($1, $2, $3, $4) RETURNING order_id',
+      `INSERT INTO Orders (user_id, shipping_address_id, billing_address_id, total_amount)
+       VALUES ($1, $2, $3, $4)
+       RETURNING order_id`,
       [userId, shipping_address_id, billing_address_id, totalAmount]
     );
     const orderId = orderResult.rows[0].order_id;
@@ -39,24 +52,37 @@ router.post('/checkout', verifyToken, async (req, res) => {
     // Create order items
     for (const item of cartItems) {
       await db.query(
-        'INSERT INTO Order_Items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)',
+        `INSERT INTO Order_Items (order_id, product_id, quantity, price)
+         VALUES ($1, $2, $3, $4)`,
         [orderId, item.product_id, item.quantity, item.price]
       );
     }
+
+    // Optionally, update product stock here or via a separate process
+
+    // Create a PaymentIntent (Stripe expects amounts in cents)
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalAmount * 100), // e.g. for AUD, convert dollars to cents
+      currency: 'aud',
+      metadata: { order_id: orderId.toString() },
+      automatic_payment_methods: { enabled: true },
+    });
 
     // Clear the cart
     await db.query('DELETE FROM Cart_Items WHERE cart_id = $1', [cart_id]);
     await db.query('DELETE FROM Cart WHERE cart_id = $1', [cart_id]);
 
-    // Commit the transaction
     await db.query('COMMIT');
 
-    res.status(201).json({ message: 'Order created successfully', orderId });
+    res.status(201).json({
+      message: 'Order created successfully',
+      orderId,
+      clientSecret: paymentIntent.client_secret,
+    });
   } catch (error) {
-    // Rollback the transaction in case of error
     await db.query('ROLLBACK');
-    console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Failed to create order' });
+    console.error('Error during checkout:', error);
+    res.status(500).json({ message: error.message || 'Failed to create order' });
   }
 });
 

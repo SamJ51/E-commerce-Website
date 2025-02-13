@@ -35,9 +35,9 @@ const verifyToken = async (req, res, next) => {
     console.error('Error in verifyToken middleware:', error);
 
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired.' });
+      return res.status(401).json({ message: 'Login expired.' });
     } else if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token.' });
+      return res.status(401).json({ message: 'You are not logged in.' });
     } else {
       return res.status(500).json({ message: 'Internal server error.' });
     }
