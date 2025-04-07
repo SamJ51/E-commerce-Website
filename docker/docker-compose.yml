@@ -3,35 +3,31 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+    container_name: frontend
+    expose:
+      - "80"
+    environment:
+      - REACT_APP_API_URL=/api
+    restart: unless-stopped
     networks:
       - app-network
-    environment:
-      - REACT_APP_API_URL=http://backend:5000
-    restart: unless-stopped
 
   backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-    ports:
-      - "5000:5000"
-    command: npm run start
+    container_name: backend
+    expose:
+      - "5000"
     environment:
       - DATABASE_URL=postgresql://postgres:Bottleflip!12@db:5432/ecommerce
       - JWT_SECRET=${JWT_SECRET}
+      - STRIPE_SECRET_KEY=sk_test_1234567890
     depends_on:
       db:
         condition: service_healthy
     networks:
       - app-network
-    env_file:
-      - ../backend/config/.env
     restart: unless-stopped
 
   db:
@@ -44,6 +40,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - app-network
     healthcheck:
@@ -51,6 +48,36 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_started
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-entrypoint.sh:/usr/local/bin/nginx-entrypoint.sh:ro
+      - ./webroot:/webroot
+      - ./letsencrypt:/etc/letsencrypt
+    entrypoint: ["/usr/local/bin/nginx-entrypoint.sh"]
+    networks:
+      - app-network
+    restart: on-failure
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./webroot:/webroot
+    entrypoint: "/bin/sh -c 'while :; do certbot renew; sleep 12h; done;'"
+    depends_on:
+      - nginx
 
 networks:
   app-network:

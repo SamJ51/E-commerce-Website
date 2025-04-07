@@ -5,6 +5,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from '../pages/CheckoutForm';
 
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const stripePromise = loadStripe('pk_test_51J3J9bJ9J9bJ9J9bJ9');
 
 function Payment() {
@@ -19,7 +21,7 @@ function Payment() {
   useEffect(() => {
     async function fetchCart() {
       try {
-        const response = await axios.get('http://localhost:5000/cart', {
+        const response = await axios.get(`${API_URL}/cart`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const items = response.data.items || [];
@@ -39,7 +41,7 @@ function Payment() {
   const clearCart = async () => {
     try {
       for (const item of cartItems) {
-        await axios.delete(`http://localhost:5000/cart/items/${item.cart_item_id}`, {
+        await axios.delete(`${API_URL}/cart/items/${item.cart_item_id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }

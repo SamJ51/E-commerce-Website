@@ -6,7 +6,7 @@ const User = require('../../models/User')
 
 // Registration endpoint
 router.post('/register', async (req, res) => {
-    const { username, email, password , role_id } = req.body;    
+    const { username, email, password , role_id } = req.body;
 
     if (!username || !email || !password) {
         return res.status(400).json({ message: 'All fields are required.' });

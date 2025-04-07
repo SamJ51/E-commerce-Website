@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
 import { Link } from 'react-router-dom';
+import './CardRowStyle.css';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);
@@ -12,10 +15,10 @@ const HomePage = () => {
 
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/products', {
+                const response = await axios.get(`${API_URL}/products`, {
                     signal: abortController.signal
                 });
-                setProducts(response.data.products);
+                setProducts(response.data.products.slice(0, 10)); // Limit to 10 products
             } catch (err) {
                 if (!abortController.signal.aborted) {
                     setError(err.message || 'Failed to load products');
@@ -34,7 +37,7 @@ const HomePage = () => {
             <div style={styles.container}>
                 <h1 style={styles.heading}>Welcome to My Store</h1>
                 {error && <p style={styles.error}>{error}</p>}
-                <div style={styles.carouselContainer}>
+                <div className="carousel-container">
                     {products.length > 0 ? (
                         products.map((product) => (
                             <div key={product.product_id} style={styles.card}>
@@ -86,17 +89,6 @@ const styles = {
         fontSize: '18px',
         marginBottom: '20px',
     },
-    carouselContainer: {
-        display: 'grid',
-        // Force each column to be exactly 250px wide
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 250px))',
-        rowGap: '20px',
-        columnGap: '20px',
-        justifyContent: 'center',
-        width: '100%',
-        maxWidth: '1500px',
-        marginBottom: '20px',
-    },
     card: {
         backgroundColor: '#fff',
         borderRadius: '10px',
@@ -105,7 +97,6 @@ const styles = {
         textAlign: 'center',
         display: 'flex',
         flexDirection: 'column',
-        // Fixed height for consistent card size
         height: '400px',
     },
     image: {
@@ -118,7 +109,7 @@ const styles = {
         fontSize: '16px',
         color: '#333',
         margin: '0px',
-        flexGrow: 1, // This helps push the bottom section to the bottom
+        flexGrow: 1,
     },
     bottomSection: {
         paddingTop: '5px',

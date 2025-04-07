@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
 import { Link } from 'react-router-dom';
+import './CardRowStyle.css';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const ViewProductsPage = () => {
   // Filter & Sorting state
@@ -33,7 +36,7 @@ const ViewProductsPage = () => {
     setError(null);
 
     try {
-      const response = await axios.get('http://localhost:5000/products', {
+      const response = await axios.get(`${API_URL}/products`, {
         params: {
           page: currentPage,
           limit,
@@ -46,7 +49,6 @@ const ViewProductsPage = () => {
         },
       });
 
-      // The backend sends the products and pagination info
       setProducts(response.data.products);
       setPagination(response.data.pagination);
     } catch (err) {
@@ -59,13 +61,11 @@ const ViewProductsPage = () => {
   // Fetch products when query parameters change
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, sortBy, sortOrder]);
 
   // Handler for the filter/search form submission
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Reset page to 1 on new search/filters
     setCurrentPage(1);
     fetchProducts();
   };
@@ -83,14 +83,12 @@ const ViewProductsPage = () => {
       return;
     }
     try {
-      // Retrieve the token (adjust as necessary)
       const token = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:5000/products/${productId}`, {
+      await axios.delete(`${API_URL}/products/${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      // Update the state to remove the deleted product
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.product_id !== productId)
       );
@@ -118,18 +116,6 @@ const ViewProductsPage = () => {
               style={styles.input}
             />
           </div>
-          {/*
-          <div style={styles.formRow}>
-            <label style={styles.label}>Category:</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Category"
-              style={styles.input}
-            />
-          </div>
-          */}
           <div style={styles.formRow}>
             <label style={styles.label}>Price Min:</label>
             <input
@@ -185,39 +171,42 @@ const ViewProductsPage = () => {
           <p style={styles.error}>{error}</p>
         ) : (
           <>
-            <div style={styles.productsGrid}>
+            <div className="carousel-container">
               {products.length > 0 ? (
                 products.map((product) => (
                   <div key={product.product_id} style={styles.card}>
-                    <img
-                      src={product.main_image_url || 'https://via.placeholder.com/200'}
-                      alt={product.name}
-                      style={styles.image}
-                    />
+                    <div style={styles.imageContainer}>
+                      <img
+                        src={product.main_image_url || 'https://via.placeholder.com/200'}
+                        alt={product.name}
+                        style={styles.image}
+                      />
+                    </div>
                     <h3 style={styles.productName}>{product.name}</h3>
-                    <p style={styles.price}>
-                      ${parseFloat(product.price).toFixed(2)}
-                    </p>
-                    {/* Buttons Container: Fixed location at the bottom */}
-                    <div style={styles.buttonContainer}>
-                      <Link
-                        to={`/products/${product.product_id}`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <button style={styles.viewButton}>View</button>
-                      </Link>
-                      <Link
-                        to={`/products/${product.product_id}/edit`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <button style={styles.editButton}>Edit</button>
-                      </Link>
-                      <button
-                        style={styles.deleteButton}
-                        onClick={() => handleDelete(product.product_id)}
-                      >
-                        Delete
-                      </button>
+                    <div style={styles.bottomSection}>
+                      <p style={styles.price}>
+                        ${parseFloat(product.price).toFixed(2)}
+                      </p>
+                      <div style={styles.buttonContainer}>
+                        <Link
+                          to={`/products/${product.product_id}`}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <button style={styles.viewButton}>View</button>
+                        </Link>
+                        <Link
+                          to={`/products/${product.product_id}/edit`}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <button style={styles.editButton}>Edit</button>
+                        </Link>
+                        <button
+                          style={styles.deleteButton}
+                          onClick={() => handleDelete(product.product_id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -258,6 +247,11 @@ const styles = {
     padding: '20px',
     backgroundColor: '#f5f5f5',
     minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '100%',
+    margin: '0 auto',
   },
   heading: {
     textAlign: 'center',
@@ -275,6 +269,8 @@ const styles = {
     padding: '15px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    width: '100%',
+    maxWidth: '1200px',
   },
   formRow: {
     display: 'flex',
@@ -305,12 +301,6 @@ const styles = {
     height: 'fit-content',
     marginTop: '25px',
   },
-  productsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, 250px)', // Each card is 250px wide
-    gap: '20px',
-    justifyContent: 'center',
-  },
   card: {
     backgroundColor: '#fff',
     borderRadius: '10px',
@@ -320,85 +310,91 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '400px',
-    position: 'relative', // Needed for absolute positioning of the buttons
+  },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    paddingBottom: '75%', // 4:3 aspect ratio; adjust as needed (e.g., '100%' for 1:1, '56.25%' for 16:9)
+    marginBottom: '10px',
   },
   image: {
+    position: 'absolute',
+    top: '0',
+    left: '0',
     width: '100%',
-    height: '200px',
+    height: '100%',
     objectFit: 'contain',
     borderRadius: '8px',
-    marginBottom: '10px',
   },
   productName: {
     fontSize: '18px',
     color: '#333',
     margin: '10px 0 5px 0',
+    flexGrow: 1,
+  },
+  bottomSection: {
+    paddingTop: '5px',
+    marginTop: 'auto',
   },
   price: {
-    fontSize: '16px',
+    fontSize: '18px',
     color: 'green',
-    fontWeight: 'bold',
+    margin: '5px 0',
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: '15px',
-    left: '15px',
-    right: '15px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: '35px', // Fixed container height so buttons are aligned the same for every card
+    height: '35px',
+    marginTop: '10px',
   },
   viewButton: {
     width: '70px',
-    height: '35px', // Explicit height
+    height: '35px',
     backgroundColor: 'black',
     color: '#fff',
     border: 'none',
     borderRadius: '20px',
     cursor: 'pointer',
     fontSize: '16px',
-    transition: 'transform 0.1s ease',
-    padding: '0', // Remove default padding
+    padding: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   editButton: {
     width: '70px',
-    height: '35px', // Explicit height
+    height: '35px',
     backgroundColor: '#007bff',
     color: '#fff',
     border: 'none',
     borderRadius: '20px',
     cursor: 'pointer',
     fontSize: '16px',
-    transition: 'transform 0.1s ease',
-    padding: '0', // Remove default padding
+    padding: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteButton: {
     width: '70px',
-    height: '35px', // Explicit height
+    height: '35px',
     backgroundColor: '#dc3545',
     color: '#fff',
     border: 'none',
     borderRadius: '20px',
     cursor: 'pointer',
     fontSize: '16px',
-    transition: 'transform 0.1s ease',
-    padding: '0', // Remove default padding
+    padding: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   noResults: {
-    gridColumn: '1 / -1',
     textAlign: 'center',
     fontSize: '18px',
     color: '#555',
+    width: '100%',
   },
   pagination: {
     display: 'flex',

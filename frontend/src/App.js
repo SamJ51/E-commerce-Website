@@ -11,23 +11,26 @@ import ViewProductsPage from './pages/ViewProductsPage';
 import CartManagementPage from './pages/CartManagementPage';
 import Payment from './components/Payment';
 import CheckoutForm from './pages/CheckoutForm';
+import { CartProvider } from './pages/CartContext';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/products" element={<CreateProductPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/products/:id/edit" element={<UpdateProductPage />} />
-        <Route path="/products/:id" element={<ProductDetailsPage />} />
-        <Route path="/viewproducts" element={<ViewProductsPage />} />
-        <Route path="/cart" element={<CartManagementPage />} />
-        <Route path="/checkout" element={<Payment />} />
-      </Routes>
-    </Router>
+    <CartProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/products" element={<CreateProductPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/products/:id/edit" element={<UpdateProductPage />} />
+          <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route path="/viewproducts" element={<ViewProductsPage />} />
+          <Route path="/cart" element={<CartManagementPage />} />
+          <Route path="/checkout" element={<Payment />} />
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 

@@ -3,6 +3,8 @@ import axios from 'axios';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const CartManagementPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ const CartManagementPage = () => {
         setError(null);
         try {
             const token = getAuthToken();
-            const response = await axios.get('http://localhost:5000/cart', {
+            const response = await axios.get(`${API_URL}/cart`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setCartItems(response.data.items);
@@ -39,7 +41,7 @@ const CartManagementPage = () => {
         try {
             const token = getAuthToken();
             await axios.patch(
-                `http://localhost:5000/cart/items/${cartItemId}`,
+                `${API_URL}/cart/items/${cartItemId}`,
                 { quantity: newQuantity },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -54,7 +56,7 @@ const CartManagementPage = () => {
     const removeItem = async (cartItemId) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`http://localhost:5000/cart/items/${cartItemId}`, {
+            await axios.delete(`${API_URL}/cart/items/${cartItemId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Refresh the cart items after removal
@@ -79,8 +81,6 @@ const CartManagementPage = () => {
                     <p style={styles.loading}>Loading cart items...</p>
                 ) : error ? (
                     <p style={styles.error}>{error}</p>
-                ) : cartItems.length === 0 ? (
-                    <p>Your cart is empty.</p>
                 ) : (
                     <>
                         <div style={styles.cartList}>
@@ -134,14 +134,16 @@ const CartManagementPage = () => {
                         <div style={styles.totalContainer}>
                             <h2>Total: ${totalPrice.toFixed(2)}</h2>
                         </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <button
-                                style={styles.checkoutButton}
-                                onClick={() => navigate('/checkout')}
-                            >
-                                Proceed to Checkout
-                            </button>
-                        </div>
+                        {cartItems.length > 0 && (
+                            <div style={{ textAlign: 'center' }}>
+                                <button
+                                    style={styles.checkoutButton}
+                                    onClick={() => navigate('/checkout')}
+                                >
+                                    Proceed to Checkout
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
@@ -245,7 +247,7 @@ const styles = {
         fontSize: '22px',
         transition: 'transform 0.1s ease',
         width: '250px',
-        marginBottom: '20px',
+        marginBottom: '20px'
     }
 };
 

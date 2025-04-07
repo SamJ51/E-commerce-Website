@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
 
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const CreateProductPage = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -24,7 +26,7 @@ const CreateProductPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/products', formData, {
+            const response = await axios.post(`${API_URL}/products`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },

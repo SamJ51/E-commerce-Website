@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
+import { useCart } from './CartContext';
+import './CardRowStyle.css';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { setCartItemCount } = useCart();
 
-  // Function to retrieve token (ensure your token is stored under this key)
   const getAuthToken = () => {
     return localStorage.getItem('authToken');
   };
@@ -19,10 +23,9 @@ const ProductDetailsPage = () => {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/products/${id}`, {
+        const response = await axios.get(`${API_URL}/products/${id}`, {
           signal: abortController.signal,
         });
-        // Use the nested "product" object from the response.
         setProduct(response.data.product);
         setError(null);
       } catch (err) {
@@ -39,21 +42,30 @@ const ProductDetailsPage = () => {
     return () => abortController.abort();
   }, [id]);
 
-  // Function to add product to cart
   const addToCart = async () => {
-    console.log('Product Object: ', product);
     try {
       const token = getAuthToken();
       if (!token) {
         alert('You must be logged in to add items to your cart.');
         return;
       }
-      // Send a POST request to add the item to the cart.
+
       await axios.post(
-        'http://localhost:5000/cart/items',
+        `${API_URL}/cart/items`,
         { product_id: id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      const cartResponse = await axios.get(`${API_URL}/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const totalItems = cartResponse.data.items.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+
+      setCartItemCount(totalItems);
+
       alert('Item added to cart!');
     } catch (err) {
       console.error('Error adding item to cart:', err);
@@ -83,30 +95,32 @@ const ProductDetailsPage = () => {
     );
   }
 
-  if (!product) return null; // Fallback if no product is found
+  if (!product) return null;
 
   return (
     <>
       <NavBar />
       <div style={styles.container}>
-        <div style={styles.productContainer}>
-          <div style={styles.imageContainer}>
+        <div style={styles.productContainer} className="product-container">
+          <h1 style={styles.productName} className="product-title">{product.name}</h1>
+          <div style={styles.imageContainer} className="image-container">
             <img
               src={product.mainImageUrl || 'https://via.placeholder.com/400'}
               alt={product.name}
               style={styles.mainImage}
             />
           </div>
-          <div style={styles.detailsContainer}>
-            <h1 style={styles.productName}>{product.name}</h1>
+          <div style={styles.detailsContainer} className="details-container">
             <p style={styles.price}>${parseFloat(product.price).toFixed(2)}</p>
             <p style={styles.description}>{product.description}</p>
             <div style={styles.metaData}>
               <p style={styles.metaItem}>
-                <strong>Created:</strong> {new Date(product.createdAt).toLocaleDateString()}
+                <strong>Created:</strong>{' '}
+                {new Date(product.createdAt).toLocaleDateString()}
               </p>
               <p style={styles.metaItem}>
-                <strong>Updated:</strong> {new Date(product.updatedAt).toLocaleDateString()}
+                <strong>Updated:</strong>{' '}
+                {new Date(product.updatedAt).toLocaleDateString()}
               </p>
             </div>
             {product.categories && product.categories.length > 0 && (
@@ -121,12 +135,21 @@ const ProductDetailsPage = () => {
             )}
             <div style={styles.stockInfo}>
               {product.stock > 0 ? (
-                <p style={styles.inStock}>In Stock ({product.stock} available)</p>
+                <p style={styles.inStock}>
+                  In Stock ({product.stock} available)
+                </p>
               ) : (
                 <p style={styles.outOfStock}>Out of Stock</p>
               )}
             </div>
-            <button style={styles.addToCartButton} onClick={addToCart}>
+            <button
+              style={{
+                ...styles.addToCartButton,
+                ...(product.stock <= 0 && styles.disabledButton),
+              }}
+              onClick={addToCart}
+              disabled={product.stock <= 0}
+            >
               Add to Cart
             </button>
           </div>
@@ -143,8 +166,6 @@ const styles = {
     minHeight: '100vh',
   },
   productContainer: {
-    display: 'flex',
-    flexDirection: 'row',
     gap: '40px',
     maxWidth: '1200px',
     margin: '0 auto',
@@ -153,10 +174,7 @@ const styles = {
     padding: '30px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   },
-  imageContainer: {
-    flex: 1,
-    maxWidth: '500px',
-  },
+  imageContainer: {},
   mainImage: {
     width: '100%',
     height: 'auto',
@@ -164,7 +182,6 @@ const styles = {
     objectFit: 'contain',
   },
   detailsContainer: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     gap: '15px',
@@ -222,6 +239,10 @@ const styles = {
     transition: 'transform 0.1s ease',
     width: '100%',
     marginTop: '20px',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    cursor: 'not-allowed',
   },
   loading: {
     textAlign: 'center',

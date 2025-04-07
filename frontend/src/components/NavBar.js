@@ -1,33 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useCart } from '../pages/CartContext';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const NavBar = () => {
     const navigate = useNavigate();
-
-    // Initialise login state by checking if a token exists in localStorage
     const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('authToken'));
+    const { cartItemCount, setCartItemCount } = useCart();
+
+    useEffect(() => {
+        const fetchCartItemCount = async () => {
+            if (isLoggedIn) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await axios.get(`${API_URL}/cart`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const totalItems = response.data.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0
+                    );
+                    setCartItemCount(totalItems);
+                } catch (err) {
+                    console.error('Failed to fetch cart item count:', err);
+                    setCartItemCount(0); // Reset on error
+                }
+            } else {
+                setCartItemCount(0); // No items if not logged in
+            }
+        };
+
+        fetchCartItemCount();
+    }, [isLoggedIn, setCartItemCount]);
 
     const handleLogout = () => {
-        // Remove the token from localStorage
         localStorage.removeItem('authToken');
         setIsLoggedIn(false);
-        // Redirect the user to the login page (or homepage if you prefer)
+        setCartItemCount(0); // Reset cart count on logout
         navigate('/login');
     };
 
     return (
         <nav style={styles.navBar}>
-            <div style={styles.logo}>Samuel Eleveld</div>
+            <Link to="/" style={{ ...styles.logo, textDecoration: 'none' }}>
+                Samuel Eleveld
+            </Link>
             <div style={styles.navLinks}>
-                <Link to="/" style={styles.navLink}>Home</Link>
-                <Link to="/viewproducts" style={styles.navLink}>Products</Link>
-                <Link to="/cart" style={styles.navLink}>Cart</Link>
-                <Link to="/profile" style={styles.navLink}>Profile</Link>
-                {/* Conditionally render the Login link or Logout button */}
+                <Link to="/" style={styles.navLink}>
+                    Home
+                </Link>
+                <Link to="/viewproducts" style={styles.navLink}>
+                    Products
+                </Link>
+                <Link to="/cart" style={styles.navLink}>
+                    Cart {cartItemCount > 0 && `(${cartItemCount})`}
+                </Link>
+                <Link to="/profile" style={styles.navLink}>
+                    Profile
+                </Link>
                 {isLoggedIn ? (
-                    <button onClick={handleLogout} style={styles.navButtonRed}>Logout</button>
+                    <button onClick={handleLogout} style={styles.navButtonRed}>
+                        Logout
+                    </button>
                 ) : (
-                    <Link to="/login" style={styles.navButtonGreen}>Login</Link>
+                    <Link to="/login" style={styles.navButtonGreen}>
+                        Login
+                    </Link>
                 )}
             </div>
         </nav>
@@ -67,16 +107,15 @@ const styles = {
         fontWeight: 500,
         transition: 'color 0.3s ease',
     },
-    // Updated logout button style to remove underlining and use a visible colour
     navButtonRed: {
         marginTop: '2px',
         backgroundColor: 'transparent',
         border: 'none',
         fontSize: '16px',
         fontWeight: 500,
-        color: 'red', // Changed from '#fff' to 'red' for visibility on white background
+        color: 'red',
         cursor: 'pointer',
-        textDecoration: 'none', // Ensure no underline
+        textDecoration: 'none',
     },
     navButtonGreen: {
         backgroundColor: 'transparent',
@@ -85,27 +124,7 @@ const styles = {
         fontWeight: 500,
         color: 'green',
         cursor: 'pointer',
-        textDecoration: 'none', // Remove underline from the login link
-    },
-    '@media (max-width: 768px)': {
-        navBar: {
-            padding: '15px 5%',
-            flexDirection: 'column',
-            gap: '15px',
-        },
-        navLinks: {
-            gap: '15px',
-            justifyContent: 'center',
-        },
-    },
-    '@media (max-width: 480px)': {
-        navLinks: {
-            gap: '10px',
-            flexWrap: 'wrap',
-        },
-        navLink: {
-            fontSize: '14px',
-        },
+        textDecoration: 'none',
     },
 };
 

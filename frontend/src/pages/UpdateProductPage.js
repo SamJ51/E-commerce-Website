@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const UpdateProductPage = () => {
     const { id } = useParams();          // The product ID from the URL
     const navigate = useNavigate();       // For optional navigation after update
@@ -23,7 +25,7 @@ const UpdateProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/products/${id}`);
+                const res = await axios.get(`${API_URL}/products/${id}`);
                 const product = res.data.product;
 
                 /*
@@ -70,7 +72,7 @@ const UpdateProductPage = () => {
         setSuccessMessage('');
 
         try {
-            await axios.patch(`http://localhost:5000/products/${id}`, formData, {
+            await axios.patch(`${API_URL}/products/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },

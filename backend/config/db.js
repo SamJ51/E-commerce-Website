@@ -1,18 +1,25 @@
-require('dotenv').config();
 const { Pool } = require('pg');
+require('dotenv').config();
 
-// Use DATABASE_URL if defined, else fall back to individual parameters
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'Bottleflip!12'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'ecommerce'}`,
-});
+let connectionString = process.env.DATABASE_URL;
+if (connectionString && connectionString.startsWith('"') && connectionString.endsWith('"')) {
+    connectionString = connectionString.slice(1, -1);
+}
 
-pool.on('connect', () => {
-  console.log('Connected to the PostgreSQL database');
-});
+const poolConfig = {
+    connectionString,
+    connectionTimeoutMillis: 2000,
+    idleTimeoutMillis: 30000,
+    query_timeout: 10000
+};
 
-pool.on('error', (err) => {
-  console.error('Database error:', err.stack);
+console.log("Pool config:", poolConfig);
+
+const pool = new Pool(poolConfig);
+
+pool.on('error', (err, client) => {
+    console.error('Unexpected error on idle client', err);
+    process.exit(-1);
 });
 
 module.exports = pool;
-

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
 
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const ProfilePage = () => {
     const [profile, setProfile] = useState({ username: '', email: '' });
     const [editing, setEditing] = useState(false);
@@ -23,7 +25,7 @@ const ProfilePage = () => {
         // Fetch user profile on component load
         const fetchProfile = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/user/profile', {
+                const response = await axios.get(`${API_URL}/user/profile`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
                 });
                 setProfile(response.data);
@@ -37,7 +39,7 @@ const ProfilePage = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.patch('http://localhost:5000/user/profile', profile, {
+            const response = await axios.patch(`${API_URL}/user/profile`, profile, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             });
             setProfile(response.data);

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import NavBar from '../components/NavBar';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -50,7 +53,7 @@ const LoginPage = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/auth/login', { email, password });
+            const response = await axios.post(`${API_URL}/auth/login`, { email, password });
             const { token } = response.data;
 
             // Save token to localStorage
@@ -64,47 +67,49 @@ const LoginPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <form style={styles.form} onSubmit={handleLogin}>
-                <h2 style={styles.h2}>Login</h2>
-                {error && <p style={styles.error}>{error}</p>}
-                <div>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                        style={emailStyle}
-                        onFocus={handleEmailFocus}
-                        onBlur={handleEmailBlur}
-                    />
-                </div>
-                <div style={styles.inputGroup}>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        style={passwordStyle}
-                        onFocus={handlePasswordFocus}
-                        onBlur={handlePasswordBlur}
-                    />
-                </div>
-                <button
-                    type="submit"
-                    style={buttonStyle}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    Login
-                </button>
-                <p style={styles.linkText}>
-                    Don't have an account? <a href="/register">Register</a>
-                </p>
-            </form>
-        </div>
+        <>
+            <NavBar />
+            <div style={styles.container}>
+                <form style={styles.form} onSubmit={handleLogin}>
+                    <h2 style={styles.h2}>Login</h2>
+                    {error && <p style={styles.error}>{error}</p>}
+                    <div>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your email"
+                            required
+                            style={emailStyle}
+                            onFocus={handleEmailFocus}
+                            onBlur={handleEmailBlur}
+                        />
+                    </div>
+                    <div style={styles.inputGroup}>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            required
+                            style={passwordStyle}
+                            onFocus={handlePasswordFocus}
+                            onBlur={handlePasswordBlur}
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        style={buttonStyle}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        Login
+                    </button>
+                    <p style={styles.linkText}>
+                        Don't have an account? <a href="/register">Register</a>
+                    </p>
+                </form>
+            </div></>
     );
 };
 

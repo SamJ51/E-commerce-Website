@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import NavBar from '../components/NavBar';
+
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const RegisterPage = () => {
     const [username, setUsername] = useState('');
@@ -44,17 +47,17 @@ const RegisterPage = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/auth/register', {
+            const response = await axios.post(`${API_URL}/auth/register`, {
                 username,
                 email,
                 password,
-                role_id: 1,
+                role_id: 2,
             });
 
             // Navigate to login or dashboard after successful registration
             navigate('/login');
         } catch (err) {
-            console.error("Registration Error:", err); // Log the full error object
+            console.error("Registration Error:", err);  // Log the full error object
             setError(err.response?.data?.message || 'Something went wrong');
             if (err.response) {
                 // The request was made and the server responded with a status code
@@ -75,62 +78,64 @@ const RegisterPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <form style={styles.form} onSubmit={handleRegister}>
-                <h2 style={styles.h2}>Register</h2>
-                {error && <p style={styles.error}>{error}</p>}
-                <div>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter your username"
-                        required
-                        style={usernameStyle}
-                        onFocus={() => handleFocus(setUsernameStyle)}
-                        onBlur={() => handleBlur(setUsernameStyle)}
-                    />
-                </div>
-                <div>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                        style={emailStyle}
-                        onFocus={() => handleFocus(setEmailStyle)}
-                        onBlur={() => handleBlur(setEmailStyle)}
-                    />
-                </div>
-                <div>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        style={passwordStyle}
-                        onFocus={() => handleFocus(setPasswordStyle)}
-                        onBlur={() => handleBlur(setPasswordStyle)}
-                    />
-                </div>
-                <button
-                    type="submit"
-                    style={buttonStyle}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    Register
-                </button>
-                <p style={styles.linkText}>
-                    Already have an account?{' '}
-                    <a style={styles.link} href="/login">
-                        Login
-                    </a>
-                </p>
-            </form>
-        </div>
+        <>
+            <NavBar />
+            <div style={styles.container}>
+                <form style={styles.form} onSubmit={handleRegister}>
+                    <h2 style={styles.h2}>Register</h2>
+                    {error && <p style={styles.error}>{error}</p>}
+                    <div>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Enter your username"
+                            required
+                            style={usernameStyle}
+                            onFocus={() => handleFocus(setUsernameStyle)}
+                            onBlur={() => handleBlur(setUsernameStyle)}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your email"
+                            required
+                            style={emailStyle}
+                            onFocus={() => handleFocus(setEmailStyle)}
+                            onBlur={() => handleBlur(setEmailStyle)}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            required
+                            style={passwordStyle}
+                            onFocus={() => handleFocus(setPasswordStyle)}
+                            onBlur={() => handleBlur(setPasswordStyle)}
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        style={buttonStyle}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        Register
+                    </button>
+                    <p style={styles.linkText}>
+                        Already have an account?{' '}
+                        <a style={styles.link} href="/login">
+                            Login
+                        </a>
+                    </p>
+                </form>
+            </div></>
     );
 };
 
