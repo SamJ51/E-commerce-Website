@@ -1,6 +1,6 @@
 # E-commerce Web Application
 
-I built this project for the purposes of better understanding full stack development.
+I built this project for the purpose of better understanding full stack development.
 
 ## Tech Stack
 
